@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" style="height:100%">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>canvas</title>
+<meta name="keywords" content=" ">
+<meta name="description" content=" ">
+
+<base target="_blank">   
+</head>
+<body > 
+
+</head>
+<body style="height:100%">
+
+<style>
+ #canvas{ }
+ *{margin:0; padding:0;}
+</style>
+
+
+ <canvas id="canvas"  >
+     
+ </canvas>
+ 
+<script>
+
+
+var _onmusedown = false ;
+var _inCanvas = false ;
+var loc = {} ;
+var ctx ;
+var s = 0 ;
+var prTime = 0 ;
+var lastLineWidth = -1 ;
+var balls = []; //增加的小球
+var colors = ["#33B5E5","#0099CC","#AA66CC","#9933CC","#99CC00","#669900","#FFBB33","#FF8800","#FF4444","#CC0000"] ; //随机颜色
+var radius = 8 ;
+window.onload = function  () {
+  var canvas = document.getElementById('canvas') ;
+  var context = canvas.getContext('2d') ;
+  ctx = context
+  canvas.width = document.body.clientWidth ;
+  canvas.height = document.body.clientHeight ;
+  mouseEvent();
+  setInterval(function(){
+     updataBall()
+     rander()
+  }, 30)
+  
+}
+
+function updataBall(){
+  for (var i = 0; i < balls.length; i++) {
+    balls[i].x += balls[i].vx ;
+    balls[i].y += balls[i].vy ;
+    balls[i].vy += balls[i].g ;
+    if (balls[i].y >= ctx.canvas.height - radius) {
+      balls[i].y = ctx.canvas.height-radius ;
+      balls[i].vy = - Math.floor( balls[i].vy/1.5) ;
+      if (balls[i].vy>=-10) {       
+        balls[i].y = ctx.canvas.height-radius ;
+        balls[i].vy = 0;
+      };
+    };
+    if (balls[i].x>canvas.width||balls[i].x<-radius) {
+      balls.splice(i,1)
+    };
+  };
+}
+ 
+
+function rander () {
+  ctx.clearRect(0,0,canvas.width,canvas.height)
+  for (var i = 0; i < balls.length; i++) {
+    ctx.fillStyle = balls[i].color ; 
+    ctx.beginPath()
+    ctx.arc(balls[i].x,balls[i].y,radius,0,2*Math.PI)
+    ctx.closePath()
+    ctx.fill()
+  }; 
+}
+
+function windowTocanvas (x,y) {
+  var _box  = canvas.getBoundingClientRect()
+  return {x:x-_box.left,y:y-_box.top}
+}
+function calcDistance (loc1,loc2) {
+   return Math.sqrt((loc2.x-loc1.x)*(loc2.x-loc1.x)+(loc2.y-loc1.y)*(loc2.y-loc1.y))
+}
+function mouseEvent () {
+  canvas.onmousedown = function (e) {
+      e.preventDefault() 
+      _onmusedown = true ;
+      loc = windowTocanvas(e.clientX,e.clientY);
+      prTime = new Date().getTime()
+    }
+    canvas.onmouseup = function (e) {
+      e.preventDefault() 
+      _onmusedown = false ;
+    }
+    canvas.onmouseout = function (e) {
+      e.preventDefault() 
+      _onmusedown = false ;
+    }
+    canvas.onmousemove = function (e) {
+      e.preventDefault() 
+      if (_onmusedown) {
+        curLoc = windowTocanvas(e.clientX,e.clientY)
+        addBalls(curLoc.x,curLoc.y)
+        loc = curLoc
+        prTime = curTime;
+        lastLineWidth = lineWidth ;
+      };
+    } 
+}
+function addBalls (x,y) {
+  var aball = {
+    x:x,
+    y:y,
+    g:1.5+Math.random(),
+    vx:Math.pow(-1,Math.ceil(Math.random()*1000))*Math.ceil(1+Math.random()*10),
+    vy:-10,
+    color:colors[Math.floor(Math.random()*colors.length)]
+  }
+  balls.push(aball);
+ 
+}
+
+
+
+
+function draw (grid) {
+  ctx.save()
+  ctx.beginPath()
+  ctx.moveTo(grid.line[0].x, grid.line[0].y)
+  for (var j = 1; j < grid.line.length; j++) {
+    ctx.lineTo(grid.line[j].x,grid.line[j].y)
+  };
+
+  ctx.strokeStyle = "red" 
+  ctx.lineWidth = '1'
+  ctx.stroke()
+
+  ctx.closePath();
+  ctx.restore()
+ } 
+</script>
+</body>
+</html>

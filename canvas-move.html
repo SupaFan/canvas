@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>canvas</title>
+<meta name="keywords" content=" ">
+<meta name="description" content=" ">
+<base target="_blank">   
+</head>
+<body > 
+
+</head>
+<body>
+
+<style>
+ #canvas{  border-bottom:1px solid red;position: absolute;left:50%; margin-left: -512px;}
+ 
+</style>
+ 
+
+ <canvas id="canvas"  >
+     
+ </canvas>
+ 
+
+<script>
+  
+
+ 
+  var ball = {x:0, y:100 , r:20, g:2 , vx : 4 , vy:-20,color:'#005588'}
+  window.onload = function () {
+   
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+    canvas.width = 1024 ;
+    canvas.height= 768 ;
+
+
+    setInterval(function(){
+      render(ctx);
+      update(ctx);
+
+    }, 20)
+  } 
+
+  function update(ctx){
+    ball.x += ball.vx ;
+    ball.y += ball.vy ;
+    ball.vy += ball.g ;
+    if (ball.y>=ctx.canvas.height-ball.r) {
+      ball.y = ctx.canvas.height-ball.r ;
+      ball.vy = - Math.floor( ball.vy/1.5) ;
+      if (ball.vy>=-5) {       
+        ball.y = ctx.canvas.height-ball.r ;
+        ball.vy = 0;
+        console.log(ball.vy)
+      };
+    };
+  }
+
+  function render (ctx) {
+    ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height)
+    ctx.fillStyle = ball.color ; 
+    ctx.beginPath()
+    ctx.arc(ball.x,ball.y,ball.r,0,2*Math.PI)
+    ctx.fill()
+  }
+
+
+
+</script>
+</body>
+</html>

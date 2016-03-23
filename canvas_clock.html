@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" style="width:100%; height:100%">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>canvas</title>
+<meta name="keywords" content=" ">
+<meta name="description" content=" ">
+<script src="digit.js"></script>
+<base target="_blank">   
+</head>
+<body style="width:100%; height:100%"> 
+
+</head>
+<body>
+
+<style>
+ *{margin:0; padding:0;}
+</style>
+ 
+
+ <canvas id="canvas"  >
+     您的浏览器不支持此动画
+ </canvas>
+ 
+
+  <script>
+    var canvas = document.getElementById('canvas'); 
+    var ctx = canvas.getContext('2d');
+    canvas.width = document.body.clientWidth; 
+    canvas.height= document.body.clientHeight ;
+    var radius = 8 ; //小球半径
+    var ml = (document.body.clientWidth-960)/2 ; //左边距
+    var mt = 100 ; //上边据
+    var endTime = new Date(2016,1,20, 12,00,00).getTime()/1000 //获取毫秒;
+    var beforeTimes = {
+      hours:'',
+      minutes:'',
+      seconds:''
+    }; 
+    var balls = []; //增加的小球
+    var colors = ["#33B5E5","#0099CC","#AA66CC","#9933CC","#99CC00","#669900","#FFBB33","#FF8800","#FF4444","#CC0000"] ; //随机颜色
+
+    window.onload = function () {
+      beforeTimes = getSecondsTime ();
+      setInterval(setIimeDraw, 30)
+    } 
+
+    function setIimeDraw(){
+      render();
+      updata();
+    }
+
+
+    /**
+     * 获取时间
+     * @return {[type]} [description]
+     */
+    function getSecondsTime () {
+      var times = {}; //当前时间
+      var nowTime =new Date()
+      nowTime>=0?nowTime:nowTime=0;
+      times.hours = nowTime.getHours() ;
+      times.minutes = nowTime.getMinutes(); 
+      times.seconds = nowTime.getSeconds();  
+      return times;
+    }
+
+    /**
+     * 更新状态
+     * @return {[type]} [description]
+     */
+    function updata () {
+      var nextTime = getSecondsTime();
+      if (nextTime.seconds != beforeTimes.seconds) {
+        if (parseInt(nextTime.hours/10) != parseInt(beforeTimes.hours/10)) {
+          addballs(ml,mt,parseInt(nextTime.hours/10))   
+        };  
+        if (parseInt(nextTime.hours) != parseInt(beforeTimes.hours)) {
+          addballs(ml+15*(radius+1),mt,parseInt(nextTime.hours%10))   
+        };
+        if (parseInt(nextTime.minutes/10) != parseInt(beforeTimes.minutes/10)) {
+          addballs(ml+39*(radius+1),mt,parseInt(nextTime.minutes/10))   
+        };  
+        if (parseInt(nextTime.minutes) != parseInt(beforeTimes.minutes)) {
+          addballs(ml+54*(radius+1),mt,parseInt(nextTime.minutes%10))   
+        };
+        if (parseInt(nextTime.seconds/10) != parseInt(beforeTimes.seconds/10)) {
+          addballs(ml+78*(radius+1),mt,parseInt(nextTime.seconds/10))   
+        };  
+        if (parseInt(nextTime.seconds) != parseInt(beforeTimes.seconds)) {
+          addballs(ml+98*(radius+1),mt,parseInt(nextTime.seconds%10))   
+        };
+         
+      };
+     
+      beforeTimes = nextTime ;
+      updataBalls();
+    }
+
+    /**
+     * 彩色小球状态
+     * @return {[type]}          [description]
+     */
+    function updataBalls () {
+      for (var i = 0; i < balls.length; i++) {
+        balls[i].x += balls[i].vx ;
+        balls[i].y += balls[i].vy ;
+        balls[i].vy += balls[i].g ;
+        if (balls[i].y >= ctx.canvas.height - radius) {
+          balls[i].y = ctx.canvas.height-radius ;
+          balls[i].vy = - Math.floor( balls[i].vy/1.5) ;
+          if (balls[i].vy>=-10) {       
+            balls[i].y = ctx.canvas.height-radius ;
+            balls[i].vy = 0;
+          };
+        };
+        if (balls[i].x>canvas.width||balls[i].x<-radius) {
+          balls.splice(i,1)
+        };
+      };
+    }
+
+    /**
+     * 添加小球
+     * @param  {[type]} x   [圆心]
+     * @param  {[type]} y   [圆心]
+     * @param  {[type]} num [time]
+     * @return {[type]}     [description]
+     */
+    function addballs (x,y,num) {
+      for (var i = 0; i < digit[num].length; i++) {
+        for (var j = 0; j < digit[num][i].length; j++) {
+          if (digit[num][i][j]==1) {
+            var aBall = {
+              x:x+j*2*(radius+1)+(radius+1),
+              y:y+i*2*(radius+1)+(radius+1),
+              g:1.5+Math.random(),
+              vx:Math.pow(-1,Math.ceil(Math.random()*1000))*Math.ceil(1+Math.random()*10),
+              vy:-10,
+              color:colors[Math.floor(Math.random()*colors.length)]
+            }
+            balls.push(aBall)
+          };
+        };   
+      };
+      console.log(balls.length)
+    }
+
+
+    function render () {
+      ctx.clearRect(0,0,canvas.width,canvas.height)
+      //绘制时间
+      draw(ml,mt,parseInt(beforeTimes.hours/10));
+      draw(ml+15*(radius+1),mt,parseInt(beforeTimes.hours%10));
+      draw(ml+30*(radius+1),mt,10);
+      draw(ml+39*(radius+1),mt,parseInt(beforeTimes.minutes/10));
+      draw(ml+54*(radius+1),mt,parseInt(beforeTimes.minutes%10));
+      draw(ml+69*(radius+1),mt,10);
+      draw(ml+78*(radius+1),mt,parseInt(beforeTimes.seconds/10));
+      draw(ml+93*(radius+1),mt,parseInt(beforeTimes.seconds%10));
+
+      /**
+       * 绘制彩色小球
+       * @param  {[type]} var i             [description]
+       * @return {[type]}     [description]
+       */
+      for (var i = 0; i < balls.length; i++) {
+        ctx.fillStyle = balls[i].color ; 
+        ctx.beginPath()
+        ctx.arc(balls[i].x,balls[i].y,radius,0,2*Math.PI)
+        ctx.closePath()
+        ctx.fill()
+      };
+    }
+
+    render ();
+
+    function draw (x,y,num) {
+      ctx.fillStyle = 'green' ;
+      for (var i = 0; i < digit[num].length; i++) {
+        for (var j = 0; j < digit[num][i].length; j++) {
+          if (digit[num][i][j]==1){
+            //开始绘制
+            ctx.beginPath() 
+            ctx.arc(x+j*2*(radius+1)+(radius+1), y+i*2*(radius+1)+(radius+1), radius, 0, 2*Math.PI);  
+            ctx.fill()
+            ctx.closePath();
+          }
+        };
+      };
+    }
+  </script>
+</body>
+</html>

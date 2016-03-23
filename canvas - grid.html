@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>canvas</title>
+<meta name="keywords" content=" ">
+<meta name="description" content=" ">
+
+<base target="_blank">   
+</head>
+<body > 
+
+</head>
+<body>
+
+<style>
+ #canvas{  border:3px solid red;margin-left:300px;}
+</style>
+
+
+ <canvas id="canvas"  >
+     
+ </canvas>
+ 
+<script>
+
+
+var _onmusedown = false ;
+var _inCanvas = false ;
+var loc = {} ;
+var ctx ;
+var s = 0 ;
+var prTime = 0 ;
+var lastLineWidth = -1 ;
+window.onload = function  () {
+  var canvas = document.getElementById('canvas') ;
+  var context = canvas.getContext('2d') ;
+  ctx = context
+  var _size = 750 ;
+  canvas.width = _size ;
+  canvas.height = _size ;
+
+  var grid = [
+    {line:[{x:0,y:0},{x:_size,y:_size}]},
+    {line:[{x:_size,y:0},{x:0,y:_size}]},
+    {line:[{x:_size/2,y:0},{x:_size/2,y:_size}]},
+    {line:[{x:0,y:_size/2},{x:_size,y:_size/2}]}
+  ]
+
+  for (var i = 0; i < grid.length; i++) {
+    draw(grid[i],context)
+  };
+
+  mouseEvent()
+  
+}
+ 
+function windowTocanvas (x,y) {
+  var _box  = canvas.getBoundingClientRect()
+  return {x:x-_box.left,y:y-_box.top}
+}
+function calcDistance (loc1,loc2) {
+   return Math.sqrt((loc2.x-loc1.x)*(loc2.x-loc1.x)+(loc2.y-loc1.y)*(loc2.y-loc1.y))
+}
+function mouseEvent () {
+  canvas.onmousedown = function (e) {
+      e.preventDefault() 
+      _onmusedown = true ;
+      loc = windowTocanvas(e.clientX,e.clientY);
+      prTime = new Date().getTime()
+    }
+    canvas.onmouseup = function (e) {
+      e.preventDefault() 
+      _onmusedown = false ;
+    }
+    canvas.onmouseout = function (e) {
+      e.preventDefault() 
+      _onmusedown = false ;
+    }
+    canvas.onmousemove = function (e) {
+      e.preventDefault() 
+      if (_onmusedown) {
+        curLoc = windowTocanvas(e.clientX,e.clientY)
+        var s = calcDistance(loc ,curLoc)
+        var curTime =  new Date().getTime()
+        var t = curTime - prTime ;
+        var lineWidth = calcLineWidth(t,s)
+
+        ctx.beginPath()
+        ctx.moveTo(loc.x,loc.y)
+        ctx.lineTo(curLoc.x,curLoc.y)
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        ctx.strokeStyle = '#000' 
+        ctx.lineWidth = lineWidth
+        ctx.stroke()
+        loc = curLoc
+        prTime = curTime;
+        lastLineWidth = lineWidth ;
+      };
+    } 
+}
+
+function calcLineWidth (t,s) {
+  var v = s/t ;
+  if (v<0.1) {
+    return lineWidth = 20
+  } else if (v>10) {
+    return lineWidth = 1
+  }
+  else{
+    lineWidth = 20 -(v-0.1)/(10-0.1)*(20-1) ;
+    if (lastLineWidth == -1) {
+      return lineWidth
+    }else{
+      return  lastLineWidth*2/3 + lineWidth*1/3
+    } 
+  }
+}
+
+function draw (grid) {
+  ctx.beginPath()
+  ctx.moveTo(grid.line[0].x, grid.line[0].y)
+  for (var j = 1; j < grid.line.length; j++) {
+    ctx.lineTo(grid.line[j].x,grid.line[j].y)
+  };
+
+  ctx.strokeStyle = "red" 
+  ctx.lineWidth = '1'
+  ctx.stroke()
+
+  ctx.closePath();
+  
+ } 
+</script>
+</body>
+</html>
